@@ -5,6 +5,8 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TDGame.Internals.UI;
 using TDGame.Internals.Common.GameUI;
+using TDGame.Internals.Common;
+using System.Linq;
 
 namespace TDGame.GameContent
 {
@@ -32,6 +34,10 @@ namespace TDGame.GameContent
         }
 
         private UIText test;
+
+        private UIElement lastElementClicked;
+
+        private Tile lastTileClicked;
 
         public TowerDefense() : base()
         {
@@ -77,6 +83,43 @@ namespace TDGame.GameContent
 
             foreach (var enemy in Enemy.TotalEnemies)
                 enemy?.Draw();
+
+            if (Instance.IsActive) {
+                foreach (var parent in UIElement.TotalElements.ToList()) {
+                    foreach (var element in parent.Children) {
+                        if (!element.MouseHovering && element.InteractionBox.Contains(Utils.MousePosition)) {
+                            element?.MouseOver();
+                            element.MouseHovering = true;
+                        }
+                        else if (element.MouseHovering && !element.InteractionBox.Contains(Utils.MousePosition)) {
+                            element?.MouseLeave();
+                            element.MouseHovering = false;
+                        }
+                        if (Input.MouseLeft && Utils.MouseOnScreenProtected && element != lastElementClicked) {
+                            element?.MouseClick();
+                            lastElementClicked = element;
+                        }
+                        if (Input.MouseRight && Utils.MouseOnScreenProtected && element != lastElementClicked) {
+                            element?.MouseRightClick();
+                            lastElementClicked = element;
+                        }
+                        if (Input.MouseMiddle && Utils.MouseOnScreenProtected && element != lastElementClicked) {
+                            element?.MouseMiddleClick();
+                            lastElementClicked = element;
+                        }
+                    }
+                }
+                foreach (var tile in Tile.Tiles) {
+                    if (!tile.mouseHovering && tile.CollisionBox.Contains(Utils.MousePosition)) {
+                        tile?.MouseOver();
+                        tile.mouseHovering = true;
+                    }
+                    else if (tile.mouseHovering && !tile.CollisionBox.Contains(Utils.MousePosition)) {
+                        tile?.MouseLeave();
+                        tile.mouseHovering = false;
+                    }
+                }
+            }
 
             base.Draw(gameTime);
             spriteBatch.End();
