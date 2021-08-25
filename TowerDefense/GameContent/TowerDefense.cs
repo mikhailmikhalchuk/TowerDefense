@@ -72,6 +72,12 @@ namespace TDGame.GameContent
             foreach (var element in UIElement.TotalElements)
                 element?.Draw();
 
+            foreach (var tower in Tower.TotalTowers)
+                tower?.Draw();
+
+            foreach (var enemy in Enemy.TotalEnemies)
+                enemy?.Draw();
+
             base.Draw(gameTime);
             spriteBatch.End();
         }
