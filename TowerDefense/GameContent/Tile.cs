@@ -28,7 +28,7 @@ namespace TDGame.GameContent
         public int WorldX { get; }
         public int WorldY { get; }
 
-        public Texture2D Texture { get; private set; } = Resources.GetResourceBJ<Texture2D>("UIPanelBackground");
+        public Texture2D Texture { get; private set; } = Resources.GetResourceBJ<Texture2D>("Assets/UIPanelBackground");
 
         public Vector2 Center => new(WorldX + CollisionBox.Width / 2, CollisionBox.Y + CollisionBox.Height / 2);
         public Vector2 Top => new(WorldX + (CollisionBox.Width / 2), WorldY);
@@ -54,19 +54,27 @@ namespace TDGame.GameContent
 
         public event MouseEvent OnMouseLeave;
 
-        internal Tile(int x, int y, bool elevated, int type = 0) {
+        internal Tile(int x, int y, bool elevated = false, int type = 0) {
             X = x;
             Y = y;
+            WorldX = x * 16;
+            WorldY = y * 16;
             Elevated = elevated;
             this.type = type;
             switch (type) {
                 case 1:
-                    Texture = Resources.GetResourceBJ<Texture2D>("UIPanelBackground");
+                    Texture = Resources.GetResourceBJ<Texture2D>("Assets/UIPanelBackground");
                     break;
             }
+            Tiles[X, Y] = this;
         }
 
         internal void Update() {
+
+        }
+
+        internal void Draw() {
+            TowerDefense.spriteBatch.Draw(Texture, CollisionBox, new Rectangle(0, 0, 32, 32), Color.White, 0f, Vector2.Zero, default, 0f); //or null for sourceRect
         }
 
         public void MouseClick() {

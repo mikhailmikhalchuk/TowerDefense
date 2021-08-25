@@ -3,6 +3,7 @@ using System.Reflection;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using TDGame.Internals;
 using TDGame.Internals.UI;
 using TDGame.Internals.Common.GameUI;
 using TDGame.Internals.Common;
@@ -16,6 +17,8 @@ namespace TDGame.GameContent
         {
             get; private set;
         }
+
+        public static Logger BaseLogger { get; } = new(ExePath, "client_logger");
 
         public static string ExePath => Assembly.GetExecutingAssembly().Location.Replace(@$"\TowerDefense.dll", string.Empty);
         public static SpriteBatch spriteBatch;
@@ -32,8 +35,6 @@ namespace TDGame.GameContent
         {
             public static SpriteFont DefaultFont;
         }
-
-        private UIText test;
 
         private UIElement lastElementClicked;
 
@@ -52,6 +53,12 @@ namespace TDGame.GameContent
             // TODO: Add your initialization logic here
 
             base.Initialize();
+
+            for (int i = 0; i < Utils.WindowWidth / 16; i++) {
+                for (int j = 0; j < Utils.WindowHeight / 16; j++) {
+                    new Tile(i, j);
+                }
+            }
         }
 
         protected override void LoadContent()
@@ -60,13 +67,13 @@ namespace TDGame.GameContent
             UITextures.UIPanelBackground = Content.Load<Texture2D>("Assets/UIPanelBackground");
             UITextures.UIPanelBackgroundCorner = Content.Load<Texture2D>("Assets/UIPanelBackgroundCorner");
             Fonts.DefaultFont = Content.Load<SpriteFont>("Assets/DefaultFont");
-            test = new("Hi", Fonts.DefaultFont, Color.White);
-            test.InteractionBox = new OuRectangle(100, 100, 100, 50);
             // TODO: use this.Content to load your game content here
         }
 
         protected override void Update(GameTime gameTime)
         {
+            Input.HandleInput();
+
             base.Update(gameTime);
         }
 
@@ -83,6 +90,9 @@ namespace TDGame.GameContent
 
             foreach (var enemy in Enemy.TotalEnemies)
                 enemy?.Draw();
+
+            foreach (var tile in Tile.Tiles)
+                tile?.Draw();
 
             if (Instance.IsActive) {
                 foreach (var parent in UIElement.TotalElements.ToList()) {
@@ -110,6 +120,8 @@ namespace TDGame.GameContent
                     }
                 }
                 foreach (var tile in Tile.Tiles) {
+                    if (tile == null)
+                        continue;
                     if (!tile.mouseHovering && tile.CollisionBox.Contains(Utils.MousePosition)) {
                         tile?.MouseOver();
                         tile.mouseHovering = true;
@@ -117,6 +129,14 @@ namespace TDGame.GameContent
                     else if (tile.mouseHovering && !tile.CollisionBox.Contains(Utils.MousePosition)) {
                         tile?.MouseLeave();
                         tile.mouseHovering = false;
+                    }
+                    if (Input.MouseLeft && Utils.MouseOnScreenProtected && tile != lastTileClicked) {
+                        tile?.MouseClick();
+                        lastTileClicked = tile;
+                    }
+                    if (Input.MouseRight && Utils.MouseOnScreenProtected && tile != lastTileClicked) {
+                        tile?.MouseRightClick();
+                        lastTileClicked = tile;
                     }
                 }
             }

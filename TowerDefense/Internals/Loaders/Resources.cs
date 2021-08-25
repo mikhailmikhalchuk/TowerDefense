@@ -16,6 +16,7 @@ namespace TDGame.Internals.Loaders
 			}
 			return LoadResource<T>(manager, name);
 		}
+
 		public static T LoadResource<T>(ContentManager manager, string name) where T : class {
 			T loaded = manager.Load<T>(name);
 

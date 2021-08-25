@@ -37,8 +37,7 @@ namespace TDGame.Internals.Common
             CurrentGamePadSnapshot = GamePad.GetState(pIndex);
         }
         public static bool KeyJustPressed(Keys key) {
-            bool pressed = CurrentKeySnapshot.IsKeyDown(key) && OldKeySnapshot.IsKeyUp(key);
-            return pressed;
+            return CurrentKeySnapshot.IsKeyDown(key) && OldKeySnapshot.IsKeyUp(key);
         }
         public static bool MouseLeft => CurrentMouseSnapshot.LeftButton == ButtonState.Pressed;
         public static bool MouseMiddle => CurrentMouseSnapshot.MiddleButton == ButtonState.Pressed;
