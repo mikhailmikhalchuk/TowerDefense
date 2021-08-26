@@ -54,10 +54,10 @@ namespace TDGame.GameContent
 
             base.Initialize();
 
-            for (int i = 0; i < Utils.WindowWidth / 16; i++) {
-                for (int j = 0; j < Utils.WindowHeight / 16; j++) {
-                    new Tile(i, j);
-                }
+            Stage test = Stage.LoadStage("TestStage");
+
+            foreach (var tl in test.TileMap) {
+                Tile.Tiles[tl.X, tl.Y] = tl;
             }
         }
 

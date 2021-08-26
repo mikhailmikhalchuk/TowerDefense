@@ -65,6 +65,9 @@ namespace TDGame.GameContent
                 case 1:
                     Texture = Resources.GetResourceBJ<Texture2D>("Assets/UIPanelBackground");
                     break;
+                case 2:
+                    Texture = Resources.GetResourceBJ<Texture2D>("Assets/UIPanelBackgroundCorner");
+                    break;
             }
             Tiles[X, Y] = this;
         }

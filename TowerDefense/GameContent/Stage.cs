@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -15,6 +16,64 @@ namespace TDGame.GameContent
 
         public Stage(string name) {
             Name = name;
+        }
+
+        public static void SaveStage(Stage stage) {
+            string root = Path.Combine(TowerDefense.ExePath, "Stages");
+            string path = Path.Combine(root, $"{stage.Name}.stg");
+            if (!Directory.Exists(root))
+                Directory.CreateDirectory(root);
+            stage.TileMap.Clear();
+
+            foreach (var tile in Tile.Tiles) {
+                if (tile != null) {
+                    stage.TileMap.Add(tile);
+                }
+            }
+
+            using var writer = new BinaryWriter(File.Open(path, FileMode.OpenOrCreate, FileAccess.ReadWrite));
+
+            writer.Write(stage.TileMap.Count);
+            foreach (var tl in stage.TileMap) {
+                writer.Write(tl.X);
+                writer.Write(tl.Y);
+                writer.Write(tl.Elevated);
+                writer.Write(tl.type);
+            }
+        }
+
+        public static Stage LoadStage(string fileName) {
+            string root = Path.Combine(TowerDefense.ExePath, "Stages");
+            string path = Path.Combine(root, $"{fileName}.stg");
+            if (!Directory.Exists(root))
+                Directory.CreateDirectory(root);
+
+            Stage returnStage = new(fileName);
+
+
+            TowerDefense.BaseLogger.Write(path, Internals.Logger.LogType.Debug);
+
+            if (!File.Exists(path)) {
+                TowerDefense.BaseLogger.Write($"Could not find stage file \"{fileName}.stg\" in the stages folder. Did you make a typo?", Internals.Logger.LogType.Error);
+                return returnStage;
+            }
+
+            using (var reader = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read))) {
+                try {
+                    int tileAmount = reader.ReadInt32();
+                    for (int i = 0; i < tileAmount; i++) {
+                        int x = reader.ReadInt32();
+                        int y = reader.ReadInt32();
+                        bool raised = reader.ReadBoolean();
+                        int tileType = reader.ReadInt32();
+                        returnStage.TileMap.Add(new Tile(x, y, raised, tileType));
+                    }
+                }
+                catch (Exception e) {
+                    TowerDefense.BaseLogger.Write($"An error occurred while loading the stage \"${fileName}.stg\": {e}", Internals.Logger.LogType.Error);
+                }
+            }
+            return returnStage;
         }
     }
 }
