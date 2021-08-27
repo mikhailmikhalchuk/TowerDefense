@@ -37,7 +37,7 @@ namespace TDGame.Internals
             sWriter = new(fStream);
         }
 
-        public void Write(object contents, LogType writeType) {
+        public void Write(object contents, LogType writeType = LogType.Info) {
             fStream.Position = fStream.Length;
             string str = $"[{DateTime.Now}] [{assembly.GetName().Name}] [{writeType.ToString().ToUpper()}]: {contents}";
             sWriter.WriteLine(str);

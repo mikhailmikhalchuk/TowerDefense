@@ -9,14 +9,17 @@ namespace TDGame.Internals.Common
         {
             get; internal set;
         }
+
         public static KeyboardState OldKeySnapshot
         {
             get; internal set;
         }
+
         public static MouseState CurrentMouseSnapshot
         {
             get; internal set;
         }
+
         public static MouseState OldMouseSnapshot
         {
             get; internal set;
@@ -26,6 +29,7 @@ namespace TDGame.Internals.Common
         {
             get; internal set;
         }
+
         public static GamePadState OldGamePadSnapshot
         {
             get; internal set;
@@ -36,22 +40,27 @@ namespace TDGame.Internals.Common
             CurrentMouseSnapshot = Mouse.GetState();
             CurrentGamePadSnapshot = GamePad.GetState(pIndex);
         }
+
         public static bool KeyJustPressed(Keys key) {
             return CurrentKeySnapshot.IsKeyDown(key) && OldKeySnapshot.IsKeyUp(key);
         }
+
         public static bool MouseLeft => CurrentMouseSnapshot.LeftButton == ButtonState.Pressed;
         public static bool MouseMiddle => CurrentMouseSnapshot.MiddleButton == ButtonState.Pressed;
         public static bool MouseRight => CurrentMouseSnapshot.RightButton == ButtonState.Pressed;
+
         public static bool CanDetectClick(bool rightClick = false) {
             bool clicked = !rightClick ? (CurrentMouseSnapshot.LeftButton == ButtonState.Pressed && OldMouseSnapshot.LeftButton == ButtonState.Released)
                 : (CurrentMouseSnapshot.RightButton == ButtonState.Pressed && OldMouseSnapshot.RightButton == ButtonState.Released);
             return Utils.WindowActive ? clicked : false;
         }
+
         public static bool CanDetectClickRelease(bool rightClick = false) {
             bool released = !rightClick ? (CurrentMouseSnapshot.LeftButton != ButtonState.Pressed && OldMouseSnapshot.LeftButton != ButtonState.Released)
                 : (CurrentMouseSnapshot.RightButton != ButtonState.Pressed && OldMouseSnapshot.RightButton != ButtonState.Released);
             return Utils.WindowActive ? released : false;
         }
+
         public static Keys FirstPressedKey
         {
             get
@@ -61,6 +70,7 @@ namespace TDGame.Internals.Common
                 return Keys.None;
             }
         }
+
         public static int DeltaScrollWheel => CurrentMouseSnapshot.ScrollWheelValue / 120;
     }
 }

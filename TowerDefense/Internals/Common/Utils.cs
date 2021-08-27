@@ -20,6 +20,6 @@ namespace TDGame.Internals.Common
 
         public static bool MouseOnScreenProtected => MousePosition.X > 16 && MousePosition.X < WindowWidth - 16 && MousePosition.Y > 16 && MousePosition.Y < WindowHeight - 16;
 
-        public static Point ToPoint(this Vector2 vector) => new Point((int)vector.X, (int)vector.Y);
+        public static Point ToPoint(this Vector2 vector) => new((int)vector.X, (int)vector.Y);
     }
 }

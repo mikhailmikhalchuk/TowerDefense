@@ -40,6 +40,7 @@ namespace TDGame.GameContent
                 writer.Write(tl.Elevated);
                 writer.Write(tl.type);
             }
+            TowerDefense.BaseLogger.Write($"Saved stage \"${stage.Name}.stg\" to Stages folder.", Internals.Logger.LogType.Info);
         }
 
         public static Stage LoadStage(string fileName) {
@@ -49,9 +50,6 @@ namespace TDGame.GameContent
                 Directory.CreateDirectory(root);
 
             Stage returnStage = new(fileName);
-
-
-            TowerDefense.BaseLogger.Write(path, Internals.Logger.LogType.Debug);
 
             if (!File.Exists(path)) {
                 TowerDefense.BaseLogger.Write($"Could not find stage file \"{fileName}.stg\" in the stages folder. Did you make a typo?", Internals.Logger.LogType.Error);
@@ -73,6 +71,7 @@ namespace TDGame.GameContent
                     TowerDefense.BaseLogger.Write($"An error occurred while loading the stage \"${fileName}.stg\": {e}", Internals.Logger.LogType.Error);
                 }
             }
+            TowerDefense.BaseLogger.Write($"Loaded stage \"{fileName}.stg\" into current.", Internals.Logger.LogType.Info);
             return returnStage;
         }
     }

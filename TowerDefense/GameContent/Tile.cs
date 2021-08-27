@@ -12,13 +12,13 @@ namespace TDGame.GameContent
 
         public delegate void MouseEvent(Tile tile);
 
-        public static Tile[,] Tiles = new Tile[1000, 1000];
+        public static Tile[,] Tiles = new Tile[250, 250];
 
         public int type;
 
         public bool Elevated { get; }
 
-        public const int MAX_TILES = 16000;
+        public const int MAX_TILES = 400;
 
         public bool mouseHovering;
 
@@ -28,7 +28,7 @@ namespace TDGame.GameContent
         public int WorldX { get; }
         public int WorldY { get; }
 
-        public Texture2D Texture { get; private set; } = Resources.GetResourceBJ<Texture2D>("Assets/UIPanelBackground");
+        public Texture2D Texture { get; private set; } = Resources.GetResourceBJ<Texture2D>("Assets/BrownTile");
 
         public Vector2 Center => new(WorldX + CollisionBox.Width / 2, CollisionBox.Y + CollisionBox.Height / 2);
         public Vector2 Top => new(WorldX + (CollisionBox.Width / 2), WorldY);
@@ -50,6 +50,10 @@ namespace TDGame.GameContent
 
         public event MouseEvent OnMouseRightClick;
 
+        public event MouseEvent OnMouseLeftRelease;
+
+        public event MouseEvent OnMouseRightRelease;
+
         public event MouseEvent OnMouseOver;
 
         public event MouseEvent OnMouseLeave;
@@ -57,16 +61,16 @@ namespace TDGame.GameContent
         internal Tile(int x, int y, bool elevated = false, int type = 0) {
             X = x;
             Y = y;
-            WorldX = x * 16;
-            WorldY = y * 16;
+            WorldX = x * 32;
+            WorldY = y * 32;
             Elevated = elevated;
             this.type = type;
             switch (type) {
                 case 1:
-                    Texture = Resources.GetResourceBJ<Texture2D>("Assets/UIPanelBackground");
+                    Texture = Resources.GetResourceBJ<Texture2D>("Assets/DarkGrayTile");
                     break;
                 case 2:
-                    Texture = Resources.GetResourceBJ<Texture2D>("Assets/UIPanelBackgroundCorner");
+                    Texture = Resources.GetResourceBJ<Texture2D>("Assets/LightGrayTile");
                     break;
             }
             Tiles[X, Y] = this;
@@ -77,7 +81,7 @@ namespace TDGame.GameContent
         }
 
         internal void Draw() {
-            TowerDefense.spriteBatch.Draw(Texture, CollisionBox, new Rectangle(0, 0, 32, 32), Color.White, 0f, Vector2.Zero, default, 0f); //or null for sourceRect
+            TowerDefense.spriteBatch.Draw(Texture, CollisionBox, null, Color.White, 0f, Vector2.Zero, default, 0f);
         }
 
         public void MouseClick() {
@@ -86,6 +90,14 @@ namespace TDGame.GameContent
 
         public void MouseRightClick() {
             OnMouseRightClick?.Invoke(this);
+        }
+
+        public void MouseLeftRelease() {
+            OnMouseLeftRelease?.Invoke(this);
+        }
+
+        public void MouseRightRelease() {
+            OnMouseRightRelease?.Invoke(this);
         }
 
         public void MouseOver() {

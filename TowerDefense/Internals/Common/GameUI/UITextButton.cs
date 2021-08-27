@@ -38,7 +38,7 @@ namespace TDGame.Internals.Common.GameUI
 
         public override void Draw() {
             base.Draw();
-            TowerDefense.spriteBatch.DrawString(Font, Text, InteractionBox.Center - (Font.MeasureString(Text) / 2f), TextColor, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0f);
+            TowerDefense.spriteBatch.DrawString(Font, Text, InteractionBox.Center - Font.MeasureString(Text) / 1.5f, TextColor, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0f);
         }
 
         public override void MouseOver() {

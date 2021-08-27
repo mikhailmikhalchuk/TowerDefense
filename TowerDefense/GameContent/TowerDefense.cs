@@ -36,9 +36,15 @@ namespace TDGame.GameContent
             public static SpriteFont DefaultFont;
         }
 
-        private UIElement lastElementClicked;
+        private UIElement lastElementLeftClicked;
 
-        private Tile lastTileClicked;
+        private UIElement lastElementRightClicked;
+
+        private UIElement lastElementMiddleClicked;
+
+        private Tile lastTileLeftClicked;
+
+        private Tile lastTileRightClicked;
 
         public TowerDefense() : base()
         {
@@ -54,11 +60,21 @@ namespace TDGame.GameContent
 
             base.Initialize();
 
-            Stage test = Stage.LoadStage("TestStage");
+            //Stage test = new("TestStage");
+
+            /*for (int i = 0; i < Utils.WindowWidth / 16; i++) {
+                for (int j = 0; j < Utils.WindowHeight / 16; j++) {
+                    test.TileMap.Add(new Tile(i, j, false, new Random().Next(1, 3)));
+                }
+            }*/
+
+            Stage test = Stage.LoadStage("TestStage2");
 
             foreach (var tl in test.TileMap) {
                 Tile.Tiles[tl.X, tl.Y] = tl;
             }
+
+            //Stage.SaveStage(test);
         }
 
         protected override void LoadContent()
@@ -67,6 +83,7 @@ namespace TDGame.GameContent
             UITextures.UIPanelBackground = Content.Load<Texture2D>("Assets/UIPanelBackground");
             UITextures.UIPanelBackgroundCorner = Content.Load<Texture2D>("Assets/UIPanelBackgroundCorner");
             Fonts.DefaultFont = Content.Load<SpriteFont>("Assets/DefaultFont");
+            UI.MainMenu.Initialize();
             // TODO: use this.Content to load your game content here
         }
 
@@ -82,9 +99,6 @@ namespace TDGame.GameContent
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
 
-            foreach (var element in UIElement.TotalElements)
-                element?.Draw();
-
             foreach (var tower in Tower.TotalTowers)
                 tower?.Draw();
 
@@ -93,6 +107,9 @@ namespace TDGame.GameContent
 
             foreach (var tile in Tile.Tiles)
                 tile?.Draw();
+
+            foreach (var element in UIElement.TotalElements)
+                element?.Draw();
 
             if (Instance.IsActive) {
                 foreach (var parent in UIElement.TotalElements.ToList()) {
@@ -105,17 +122,17 @@ namespace TDGame.GameContent
                             element?.MouseLeave();
                             element.MouseHovering = false;
                         }
-                        if (Input.MouseLeft && Utils.MouseOnScreenProtected && element != lastElementClicked) {
+                        if (Input.MouseLeft && Utils.MouseOnScreenProtected && element.InteractionBox.Contains(Utils.MousePosition) && element != lastElementLeftClicked) {
                             element?.MouseClick();
-                            lastElementClicked = element;
+                            lastElementLeftClicked = element;
                         }
-                        if (Input.MouseRight && Utils.MouseOnScreenProtected && element != lastElementClicked) {
+                        if (Input.MouseRight && Utils.MouseOnScreenProtected && element.InteractionBox.Contains(Utils.MousePosition) && element != lastElementRightClicked) {
                             element?.MouseRightClick();
-                            lastElementClicked = element;
+                            lastElementRightClicked = element;
                         }
-                        if (Input.MouseMiddle && Utils.MouseOnScreenProtected && element != lastElementClicked) {
+                        if (Input.MouseMiddle && Utils.MouseOnScreenProtected && element.InteractionBox.Contains(Utils.MousePosition) && element != lastElementMiddleClicked) {
                             element?.MouseMiddleClick();
-                            lastElementClicked = element;
+                            lastElementMiddleClicked = element;
                         }
                     }
                 }
@@ -130,14 +147,30 @@ namespace TDGame.GameContent
                         tile?.MouseLeave();
                         tile.mouseHovering = false;
                     }
-                    if (Input.MouseLeft && Utils.MouseOnScreenProtected && tile != lastTileClicked) {
+                    if (Input.MouseLeft && Utils.MouseOnScreenProtected && tile.CollisionBox.Contains(Utils.MousePosition) && tile != lastTileLeftClicked) {
                         tile?.MouseClick();
-                        lastTileClicked = tile;
+                        lastTileLeftClicked = tile;
                     }
-                    if (Input.MouseRight && Utils.MouseOnScreenProtected && tile != lastTileClicked) {
+                    if (Input.MouseRight && Utils.MouseOnScreenProtected && tile.CollisionBox.Contains(Utils.MousePosition) && tile != lastTileRightClicked) {
                         tile?.MouseRightClick();
-                        lastTileClicked = tile;
+                        lastTileRightClicked = tile;
                     }
+                }
+                if (!Input.MouseLeft) {
+                    lastElementLeftClicked?.MouseLeftRelease();
+                    lastElementLeftClicked = null;
+                    lastTileLeftClicked?.MouseLeftRelease();
+                    lastTileLeftClicked = null;
+                }
+                if (!Input.MouseRight) {
+                    lastElementRightClicked?.MouseRightRelease();
+                    lastElementRightClicked = null;
+                    lastTileRightClicked?.MouseRightRelease();
+                    lastTileRightClicked = null;
+                }
+                if (!Input.MouseMiddle) {
+                    lastElementMiddleClicked?.MouseMiddleClick();
+                    lastElementMiddleClicked = null;
                 }
             }
 

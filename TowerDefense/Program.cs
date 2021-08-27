@@ -12,4 +12,9 @@ namespace TDGame
                 game.Run();
         }
     }
+
+    public enum MenuMode
+    {
+        MainMenu
+    }
 }
