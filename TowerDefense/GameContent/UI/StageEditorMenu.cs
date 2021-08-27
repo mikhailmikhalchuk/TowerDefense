@@ -2,8 +2,11 @@
 using TDGame.Internals.Common;
 using TDGame.Internals.UI;
 using TDGame.Internals.Common.GameUI;
+using System;
 using System.Windows.Forms;
 using System.IO;
+using System.Collections.Generic;
+using TDGame.Internals.Common.GameInput;
 
 namespace TDGame.GameContent.UI
 {
@@ -13,10 +16,15 @@ namespace TDGame.GameContent.UI
 
         public static int selectedType;
 
+        private static Keybind SaveKey = new("Save Stage", Microsoft.Xna.Framework.Input.Keys.U);
+
+        private static Keybind LoadKey = new("Load Stage", Microsoft.Xna.Framework.Input.Keys.I);
+
         public struct UIElements
         {
             public static UIPanel MenuTilesContainer;
             public static UITextButton PathBlock;
+            public static UITextButton WallBlock;
             public static UIText SelectedBlockText;
             public static UIPanel SelectedBlockTextContainer;
             public static UITextButton SaveKeybindText;
@@ -34,6 +42,11 @@ namespace TDGame.GameContent.UI
             {
                 InteractionBoxRelative = new(0.77f, 0.25f, 0.06f, 0.1f),
                 BackgroundColor = Color.Gray
+            };
+            UIElements.WallBlock = new("", TowerDefense.Fonts.DefaultFont, Color.White)
+            {
+                InteractionBoxRelative = new(0.87f, 0.25f, 0.06f, 0.1f),
+                BackgroundColor = Color.LightGray
             };
             UIElements.SelectedBlockTextContainer = new()
             {
@@ -55,16 +68,27 @@ namespace TDGame.GameContent.UI
                 InteractionBoxRelative = new(0.6f, 0.92f, 0.18f, 0.07f),
                 BackgroundColor = Color.Black
             };
-            UIElements.PathBlock.OnClick += PathBlock_OnClick;
-            UIElements.PathBlock.OnMouseOver += PathBlock_OnMouseOver;
-            UIElements.PathBlock.OnMouseLeave += PathBlock_OnMouseLeave;
+            UIElements.PathBlock.OnClick += BlockOnClick;
+            UIElements.PathBlock.OnMouseOver += BlockOnOver;
+            UIElements.PathBlock.OnMouseLeave += BlockOnLeave;
+            UIElements.WallBlock.OnClick += BlockOnClick;
+            UIElements.WallBlock.OnMouseOver += BlockOnOver;
+            UIElements.WallBlock.OnMouseLeave += BlockOnLeave;
             Tile.OnClick += Tile_OnClick;
             UIElements.SaveKeybindText.OnClick += SaveKeybindText_OnClick;
             UIElements.LoadKeybindText.OnClick += LoadKeybindText_OnClick;
-            UIElements.SelectedBlockTextContainer.AppendElement(UIElements.SelectedBlockText);
+            List<UIElement> toAppend = new() { UIElements.MenuTilesContainer, UIElements.PathBlock, UIElements.WallBlock, UIElements.SelectedBlockTextContainer, UIElements.SaveKeybindText, UIElements.LoadKeybindText, UIElements.SelectedBlockText };
+            foreach (var element in toAppend) {
+                MenuParent.AppendElement(element);
+            }
+            MenuParent.Visible = true; //trolling
+            SaveKey.KeybindPressAction = s => SaveKeybindText_OnClick(UIElements.SaveKeybindText);
+            LoadKey.KeybindPressAction = l => LoadKeybindText_OnClick(UIElements.LoadKeybindText);
         }
 
         private static void LoadKeybindText_OnClick(UIElement affectedElement) {
+            if (!MenuParent.Visible)
+                return;
             using OpenFileDialog fileDialog = new();
 
             fileDialog.InitialDirectory = Path.Combine(TowerDefense.ExePath, "Stages");
@@ -79,6 +103,8 @@ namespace TDGame.GameContent.UI
         }
 
         private static void SaveKeybindText_OnClick(UIElement affectedElement) {
+            if (!MenuParent.Visible)
+                return;
             using SaveFileDialog fileDialog = new();
 
             fileDialog.InitialDirectory = Path.Combine(TowerDefense.ExePath, "Stages");
@@ -100,15 +126,22 @@ namespace TDGame.GameContent.UI
 
         }
 
-        private static void PathBlock_OnMouseLeave(UIElement affectedElement) {
+        private static void BlockOnLeave(UIElement affectedElement) {
             if (selectedType <= 0) {
                 UIElements.SelectedBlockText.Visible = false;
             }
         }
 
-        private static void PathBlock_OnMouseOver(UIElement affectedElement) {
+        private static void BlockOnOver(UIElement affectedElement) {
             UIElements.SelectedBlockText.Visible = true;
-            UIElements.SelectedBlockText.Text = "Path Block";
+            string clickedTool = string.Empty;
+            if (affectedElement == UIElements.PathBlock) {
+                clickedTool = "Path Block";
+            }
+            else if (affectedElement == UIElements.WallBlock) {
+                clickedTool = "Wall Block";
+            }
+            UIElements.SelectedBlockText.Text = clickedTool;
         }
 
         private static void Tile_OnClick(Tile tile) {
@@ -118,12 +151,21 @@ namespace TDGame.GameContent.UI
             }
         }
 
-        private static void PathBlock_OnClick(UIElement affectedElement) {
-            if (selectedType != 1) {
-                selectedType = 1;
+        private static void BlockOnClick(UIElement affectedElement) {
+            int GetSelectedType() {
+                if (affectedElement == UIElements.PathBlock) {
+                    return 1;
+                }
+                else if (affectedElement == UIElements.WallBlock) {
+                    return 2;
+                }
+                return 0;
+            }
+            if (GetSelectedType() == selectedType) {
+                selectedType = 0;
             }
             else {
-                selectedType = 0;
+                selectedType = GetSelectedType();
             }
         }
     }

@@ -5,7 +5,7 @@ using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using TDGame.Internals;
 using TDGame.Internals.UI;
-using TDGame.Internals.Common.GameUI;
+using TDGame.Internals.Common.GameInput;
 using TDGame.Internals.Common;
 using System.Linq;
 
@@ -110,14 +110,13 @@ namespace TDGame.GameContent
             foreach (var tile in Tile.Tiles)
                 tile?.Draw();
 
-            foreach (var element in UIElement.TotalElements)
-                element?.Draw();
+            foreach (var element in UIElement.TotalElements) {
+                if (element.Parent == null)
+                    element?.Draw();
+            }
 
             if (Instance.IsActive) {
                 foreach (var element in UIElement.TotalElements.ToList()) {
-                    if (element.Parent != null)
-                        continue;
-
                     if (!element.MouseHovering && element.InteractionBox.Contains(Utils.MousePosition)) {
                         element?.MouseOver();
                         element.MouseHovering = true;
@@ -172,7 +171,7 @@ namespace TDGame.GameContent
                     lastTileRightClicked = null;
                 }
                 if (!Input.MouseMiddle) {
-                    lastElementMiddleClicked?.MouseMiddleClick();
+                    lastElementMiddleClicked?.MouseMiddleRelease();
                     lastElementMiddleClicked = null;
                 }
             }
