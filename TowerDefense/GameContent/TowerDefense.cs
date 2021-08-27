@@ -69,13 +69,9 @@ namespace TDGame.GameContent
                 }
             }*/
 
-            Stage test = Stage.LoadStage("TestStage2");
+            Stage test = Stage.LoadStage("TestStage");
 
-            foreach (var tl in test.TileMap) {
-                Tile.Tiles[tl.X, tl.Y] = tl;
-            }
-
-            Stage.currentLoadedStage = new("Creation");
+            Stage.SetStage(test);
 
             //Stage.SaveStage(test);
         }
@@ -121,6 +117,7 @@ namespace TDGame.GameContent
                 foreach (var element in UIElement.TotalElements.ToList()) {
                     if (element.Parent != null)
                         continue;
+
                     if (!element.MouseHovering && element.InteractionBox.Contains(Utils.MousePosition)) {
                         element?.MouseOver();
                         element.MouseHovering = true;

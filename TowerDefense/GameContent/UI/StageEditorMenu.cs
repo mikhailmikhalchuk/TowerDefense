@@ -87,7 +87,7 @@ namespace TDGame.GameContent.UI
             fileDialog.OverwritePrompt = true;
 
             if (fileDialog.ShowDialog() == DialogResult.OK) {
-                Stage.currentLoadedStage = new(fileDialog.FileName);
+                Stage.currentLoadedStage = new(fileDialog.FileName.Remove(fileDialog.FileName.Length - 4));
                 Stage.currentLoadedStage.TileMap.Clear();
                 foreach (var tl in Tile.Tiles) {
                     Stage.currentLoadedStage.TileMap.Add(tl);
