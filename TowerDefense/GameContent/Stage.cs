@@ -52,7 +52,7 @@ namespace TDGame.GameContent
             Stage returnStage = new(fileName);
 
             if (!File.Exists(path)) {
-                TowerDefense.BaseLogger.Write($"Could not find stage file \"{fileName}.stg\" in the stages folder. Did you make a typo?", Internals.Logger.LogType.Error);
+                TowerDefense.BaseLogger.Write($"Could not find stage file \"{fileName}.stg\" in the stages folder, with the path {path}. Did you make a typo?", Internals.Logger.LogType.Error);
                 return returnStage;
             }
 
@@ -73,6 +73,14 @@ namespace TDGame.GameContent
             }
             TowerDefense.BaseLogger.Write($"Loaded stage \"{fileName}.stg\" into current.", Internals.Logger.LogType.Info);
             return returnStage;
+        }
+
+        public static void SetStage(Stage stage) {
+            currentLoadedStage = stage;
+            foreach (var tl in stage.TileMap) {
+                Tile.Tiles[tl.X, tl.Y] = tl;
+            }
+            TowerDefense.BaseLogger.Write($"Set stage \"{stage.Name}\" as current.", Internals.Logger.LogType.Info);
         }
     }
 }

@@ -46,17 +46,17 @@ namespace TDGame.GameContent
 
         public event InteractionEvent<Enemy> OnEnemyExit;
 
-        public event MouseEvent OnMouseClick;
+        public static event MouseEvent OnClick;
 
-        public event MouseEvent OnMouseRightClick;
+        public static event MouseEvent OnRightClick;
 
-        public event MouseEvent OnMouseLeftRelease;
+        public static event MouseEvent OnLeftRelease;
 
-        public event MouseEvent OnMouseRightRelease;
+        public static event MouseEvent OnMouseRightRelease;
 
-        public event MouseEvent OnMouseOver;
+        public static event MouseEvent OnMouseOver;
 
-        public event MouseEvent OnMouseLeave;
+        public static event MouseEvent OnMouseLeave;
 
         internal Tile(int x, int y, bool elevated = false, int type = 0) {
             X = x;
@@ -80,20 +80,31 @@ namespace TDGame.GameContent
 
         }
 
+        public void RedrawTile() {
+            switch (type) {
+                case 1:
+                    Texture = Resources.GetResourceBJ<Texture2D>("Assets/DarkGrayTile");
+                    break;
+                case 2:
+                    Texture = Resources.GetResourceBJ<Texture2D>("Assets/LightGrayTile");
+                    break;
+            }
+        }
+
         internal void Draw() {
             TowerDefense.spriteBatch.Draw(Texture, CollisionBox, null, Color.White, 0f, Vector2.Zero, default, 0f);
         }
 
         public void MouseClick() {
-            OnMouseClick?.Invoke(this);
+            OnClick?.Invoke(this);
         }
 
         public void MouseRightClick() {
-            OnMouseRightClick?.Invoke(this);
+            OnRightClick?.Invoke(this);
         }
 
         public void MouseLeftRelease() {
-            OnMouseLeftRelease?.Invoke(this);
+            OnLeftRelease?.Invoke(this);
         }
 
         public void MouseRightRelease() {

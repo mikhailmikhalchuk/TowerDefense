@@ -17,9 +17,10 @@ namespace TDGame.GameContent.UI
 
         internal static void Initialize() {
             MenuParent = new();
-            UIElements.MenuButtonReturn = new("Return", TowerDefense.Fonts.DefaultFont, Color.Gray, Color.White, 1.5f)
+            UIElements.MenuButtonReturn = new("Return", TowerDefense.Fonts.DefaultFont, Color.Gray, 1.5f)
             {
-                InteractionBoxRelative = new(0.35f, 0.25f, 0.3f, 0.1f)
+                InteractionBoxRelative = new(0.35f, 0.25f, 0.3f, 0.1f),
+                BackgroundColor = Color.White
             };
             UIElements.Test = new()
             {

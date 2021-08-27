@@ -15,6 +15,7 @@ namespace TDGame
 
     public enum MenuMode
     {
-        MainMenu
+        MainMenu,
+        StageEditorMenu
     }
 }

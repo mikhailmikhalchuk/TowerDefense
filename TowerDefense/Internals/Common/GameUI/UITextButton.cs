@@ -28,17 +28,19 @@ namespace TDGame.Internals.Common.GameUI
 
         private byte baseAlpha;
 
-        public UITextButton(string text, SpriteFont font, Color textColor, Color backgroundColor, float scale = 1f) {
+        public UITextButton(string text, SpriteFont font, Color textColor, float scale = 1f) {
             Text = text;
             Font = font;
             TextColor = textColor;
-            BackgroundColor = backgroundColor;
             Scale = scale;
         }
 
         public override void Draw() {
             base.Draw();
-            TowerDefense.spriteBatch.DrawString(Font, Text, InteractionBox.Center - Font.MeasureString(Text) / 1.5f, TextColor, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0f);
+            if (!Visible)
+                return;
+
+            TowerDefense.spriteBatch.DrawString(Font, Text, InteractionBox.Center - Font.MeasureString(Text) / 2f, TextColor, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0f);
         }
 
         public override void MouseOver() {

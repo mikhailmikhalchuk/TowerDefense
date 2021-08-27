@@ -52,6 +52,7 @@ namespace TDGame.GameContent
             Content.RootDirectory = "Content";
             IsMouseVisible = true;
             Instance = this;
+            Window.AllowUserResizing = true;
         }
 
         protected override void Initialize()
@@ -74,6 +75,8 @@ namespace TDGame.GameContent
                 Tile.Tiles[tl.X, tl.Y] = tl;
             }
 
+            Stage.currentLoadedStage = new("Creation");
+
             //Stage.SaveStage(test);
         }
 
@@ -84,12 +87,15 @@ namespace TDGame.GameContent
             UITextures.UIPanelBackgroundCorner = Content.Load<Texture2D>("Assets/UIPanelBackgroundCorner");
             Fonts.DefaultFont = Content.Load<SpriteFont>("Assets/DefaultFont");
             UI.MainMenu.Initialize();
+            UI.StageEditorMenu.Initialize();
             // TODO: use this.Content to load your game content here
         }
 
         protected override void Update(GameTime gameTime)
         {
             Input.HandleInput();
+
+            UI.StageEditorMenu.Update();
 
             base.Update(gameTime);
         }
@@ -112,28 +118,28 @@ namespace TDGame.GameContent
                 element?.Draw();
 
             if (Instance.IsActive) {
-                foreach (var parent in UIElement.TotalElements.ToList()) {
-                    foreach (var element in parent.Children) {
-                        if (!element.MouseHovering && element.InteractionBox.Contains(Utils.MousePosition)) {
-                            element?.MouseOver();
-                            element.MouseHovering = true;
-                        }
-                        else if (element.MouseHovering && !element.InteractionBox.Contains(Utils.MousePosition)) {
-                            element?.MouseLeave();
-                            element.MouseHovering = false;
-                        }
-                        if (Input.MouseLeft && Utils.MouseOnScreenProtected && element.InteractionBox.Contains(Utils.MousePosition) && element != lastElementLeftClicked) {
-                            element?.MouseClick();
-                            lastElementLeftClicked = element;
-                        }
-                        if (Input.MouseRight && Utils.MouseOnScreenProtected && element.InteractionBox.Contains(Utils.MousePosition) && element != lastElementRightClicked) {
-                            element?.MouseRightClick();
-                            lastElementRightClicked = element;
-                        }
-                        if (Input.MouseMiddle && Utils.MouseOnScreenProtected && element.InteractionBox.Contains(Utils.MousePosition) && element != lastElementMiddleClicked) {
-                            element?.MouseMiddleClick();
-                            lastElementMiddleClicked = element;
-                        }
+                foreach (var element in UIElement.TotalElements.ToList()) {
+                    if (element.Parent != null)
+                        continue;
+                    if (!element.MouseHovering && element.InteractionBox.Contains(Utils.MousePosition)) {
+                        element?.MouseOver();
+                        element.MouseHovering = true;
+                    }
+                    else if (element.MouseHovering && !element.InteractionBox.Contains(Utils.MousePosition)) {
+                        element?.MouseLeave();
+                        element.MouseHovering = false;
+                    }
+                    if (Input.MouseLeft && Utils.MouseOnScreenProtected && element.InteractionBox.Contains(Utils.MousePosition) && element != lastElementLeftClicked) {
+                        element?.MouseClick();
+                        lastElementLeftClicked = element;
+                    }
+                    if (Input.MouseRight && Utils.MouseOnScreenProtected && element.InteractionBox.Contains(Utils.MousePosition) && element != lastElementRightClicked) {
+                        element?.MouseRightClick();
+                        lastElementRightClicked = element;
+                    }
+                    if (Input.MouseMiddle && Utils.MouseOnScreenProtected && element.InteractionBox.Contains(Utils.MousePosition) && element != lastElementMiddleClicked) {
+                        element?.MouseMiddleClick();
+                        lastElementMiddleClicked = element;
                     }
                 }
                 foreach (var tile in Tile.Tiles) {

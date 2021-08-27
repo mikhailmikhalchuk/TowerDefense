@@ -36,6 +36,8 @@ namespace TDGame.Internals.Common.GameUI
 
         public override void Draw() {
             base.Draw();
+            if (!Visible)
+                return;
 
             TowerDefense.spriteBatch.DrawString(Font, Text, InteractionBox.Position, Color, Rotation, Vector2.Zero, Scale, SpriteEffects.None, 0f);
         }

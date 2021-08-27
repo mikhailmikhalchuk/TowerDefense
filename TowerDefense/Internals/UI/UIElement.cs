@@ -53,30 +53,24 @@ namespace TDGame.Internals.UI
             if (!Visible)
                 return;
 
-            if (!(this is Common.GameUI.UITextButton))
-                return;
-
-            GameContent.TowerDefense.BaseLogger.Write(InteractionBox);
-
-            if (originalBox == null) {
-                originalBox = InteractionBox;
-                GameContent.TowerDefense.BaseLogger.Write(originalBox);
+            if (InteractionBoxRelative != default) {
+                if (originalBox == null) {
+                    originalBox = InteractionBox;
+                }
+                InteractionBox = originalBox;
+                if (InteractionBoxRelative.X != default) {
+                    InteractionBox.X += Utils.WindowTopLeft.X + (Utils.WindowWidth * InteractionBoxRelative.X);
+                }
+                if (InteractionBoxRelative.Y != default) {
+                    InteractionBox.Y += Utils.WindowTopLeft.Y + (Utils.WindowHeight * InteractionBoxRelative.Y);
+                }
+                if (InteractionBoxRelative.Width != default) {
+                    InteractionBox.Width += Utils.WindowWidth * InteractionBoxRelative.Width;
+                }
+                if (InteractionBoxRelative.Height != default) {
+                    InteractionBox.Height += Utils.WindowHeight * InteractionBoxRelative.Height;
+                }
             }
-            InteractionBox = originalBox;
-            if (InteractionBoxRelative.X != default) {
-                InteractionBox.X += Utils.WindowTopLeft.X + (Utils.WindowWidth * InteractionBoxRelative.X);
-            }
-            if (InteractionBoxRelative.Y != default) {
-                InteractionBox.Y += Utils.WindowTopLeft.Y + (Utils.WindowHeight * InteractionBoxRelative.Y);
-            }
-            if (InteractionBoxRelative.Width != default) {
-                InteractionBox.Width += Utils.WindowWidth * InteractionBoxRelative.Width;
-            }
-            if (InteractionBoxRelative.Height != default) {
-                InteractionBox.Height += Utils.WindowHeight * InteractionBoxRelative.Height;
-            }
-
-            
 
             DrawChildren();
         }
