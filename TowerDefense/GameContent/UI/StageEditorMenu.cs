@@ -30,6 +30,7 @@ namespace TDGame.GameContent.UI
             public static UIPanel MenuTilesContainer;
             public static UITextButton PathBlock;
             public static UITextButton WallBlock;
+            public static UITextButton ExitBlock;
             public static UIText SelectedBlockText;
             public static UIPanel SelectedBlockTextContainer;
             public static UITextButton SaveKeybindText;
@@ -54,6 +55,11 @@ namespace TDGame.GameContent.UI
             {
                 InteractionBoxRelative = new(0.87f, 0.25f, 0.06f, 0.1f),
                 BackgroundColor = Color.LightGray
+            };
+            UIElements.ExitBlock = new("", TowerDefense.Fonts.DefaultFont, Color.White)
+            {
+                InteractionBoxRelative = new(0.77f, 0.3f, 0.06f, 0.1f),
+                BackgroundColor = Color.Brown
             };
             UIElements.SelectedBlockTextContainer = new()
             {
@@ -90,12 +96,15 @@ namespace TDGame.GameContent.UI
             UIElements.WallBlock.OnClick += BlockOnClick;
             UIElements.WallBlock.OnMouseOver += BlockOnOver;
             UIElements.WallBlock.OnMouseLeave += BlockOnLeave;
+            UIElements.ExitBlock.OnClick += BlockOnClick;
+            UIElements.ExitBlock.OnMouseOver += BlockOnOver;
+            UIElements.ExitBlock.OnMouseLeave += BlockOnLeave;
             Tile.OnClick += Tile_OnClick;
             Tile.OnRightClick += Tile_OnRightClick;
             UIElements.SaveKeybindText.OnClick += SaveKeybindText_OnClick;
             UIElements.LoadKeybindText.OnClick += LoadKeybindText_OnClick;
             UIElements.HideUIText.OnClick += HideUIText_OnClick;
-            List<UIElement> toAppend = new() { UIElements.MenuTilesContainer, UIElements.PathBlock, UIElements.WallBlock, UIElements.SelectedBlockTextContainer, UIElements.SaveKeybindText, UIElements.LoadKeybindText, UIElements.HideUIText, UIElements.SelectedBlockText };
+            List<UIElement> toAppend = new() { UIElements.MenuTilesContainer, UIElements.PathBlock, UIElements.WallBlock, UIElements.ExitBlock, UIElements.SelectedBlockTextContainer, UIElements.SaveKeybindText, UIElements.LoadKeybindText, UIElements.HideUIText, UIElements.SelectedBlockText };
             foreach (var element in toAppend) {
                 MenuParent.AppendElement(element);
             }
@@ -105,7 +114,7 @@ namespace TDGame.GameContent.UI
         }
 
         private static void Tile_OnRightClick(Tile tile) {
-            tile.GetTileAbove();
+            new Enemy(new Vector2(tile.WorldX, tile.WorldY), 3f);
         }
 
         private static void HideUIText_OnClick(UIElement affectedElement) {
@@ -132,10 +141,11 @@ namespace TDGame.GameContent.UI
             if (fileDialog.ShowDialog() == DialogResult.OK) {
                 Stage test = Stage.LoadStage(fileDialog.SafeFileName.Remove(fileDialog.SafeFileName.Length - 4));
 
-                if (test.TileMap.Count <= 0) {
+                if (Stage.ProhibitedNames.Contains(test.Name)) {
                     UIElements.StageLoaderStatus.Text = $"Failed to load {fileDialog.SafeFileName} (check logs)";
                     UIElements.StageLoaderStatus.Color = Color.Red;
                     removeTime = 150;
+                    return;
                 }
 
                 Stage.SetStage(test);
@@ -157,6 +167,14 @@ namespace TDGame.GameContent.UI
             fileDialog.OverwritePrompt = true;
 
             if (fileDialog.ShowDialog() == DialogResult.OK) {
+
+                if (Stage.ProhibitedNames.Contains(fileDialog.FileName.Remove(fileDialog.FileName.Length - 4))) {
+                    UIElements.StageLoaderStatus.Text = $"Cannot save with reserved name \"{fileDialog.FileName.Remove(fileDialog.FileName.Length - 4)}\"";
+                    UIElements.StageLoaderStatus.Color = Color.LightGreen;
+                    removeTime = 150;
+                    return;
+                }
+
                 Stage.currentLoadedStage = new(fileDialog.FileName.Remove(fileDialog.FileName.Length - 4));
                 Stage.currentLoadedStage.TileMap.Clear();
                 foreach (var tl in Tile.Tiles) {
@@ -194,6 +212,9 @@ namespace TDGame.GameContent.UI
             else if (affectedElement == UIElements.WallBlock) {
                 clickedTool = "Wall Block";
             }
+            else if (affectedElement == UIElements.ExitBlock) {
+                clickedTool = "Exit Block";
+            }
             UIElements.SelectedBlockText.Text = clickedTool;
         }
 
@@ -213,6 +234,9 @@ namespace TDGame.GameContent.UI
                 }
                 else if (affectedElement == UIElements.WallBlock) {
                     return TileID.Wall;
+                }
+                else if (affectedElement == UIElements.ExitBlock) {
+                    return TileID.Exit;
                 }
                 return TileID.None;
             }

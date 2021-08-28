@@ -91,6 +91,9 @@ namespace TDGame.GameContent
         {
             Input.HandleInput();
 
+            foreach (var enemy in Enemy.TotalEnemies)
+                enemy?.Update();
+            
             UI.StageEditorMenu.Update();
 
             base.Update(gameTime);
@@ -101,14 +104,14 @@ namespace TDGame.GameContent
             GraphicsDevice.Clear(Color.CornflowerBlue);
             spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.NonPremultiplied);
 
+            foreach (var tile in Tile.Tiles)
+                tile?.Draw();
+
             foreach (var tower in Tower.TotalTowers)
                 tower?.Draw();
 
             foreach (var enemy in Enemy.TotalEnemies)
                 enemy?.Draw();
-
-            foreach (var tile in Tile.Tiles)
-                tile?.Draw();
 
             foreach (var element in UIElement.TotalElements) {
                 if (element.Parent == null)

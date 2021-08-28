@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -16,6 +17,8 @@ namespace TDGame.GameContent
         public static Stage currentLoadedStage;
 
         private static byte[] fileHeader = new byte[5] { 84, 68, 83, 84, 71 };
+
+        public static readonly IList<string> ProhibitedNames = new ReadOnlyCollection<string> ( new List<string> { "CouldNotLocateError", "InvalidHeaderError", "OldSaveSystemError", "LoadError", "CouldNotLocateError.stg", "InvalidHeaderError.stg", "OldSaveSystemError.stg", "LoadError.stg" } );
 
         private const int SavingSystemVersion = 1; //INCREMENT THIS AFTER EVERY BREAKING CHANGE TO THE FILE SAVING SYSTEM
 
@@ -68,8 +71,8 @@ namespace TDGame.GameContent
             Stage returnStage = new(fileName);
 
             if (!File.Exists(path)) {
-                TowerDefense.BaseLogger.Write($"Could not find stage file \"{fileName}.stg\" in the stages folder, with the path {path}. Did you make a typo?", Internals.Logger.LogType.Error);
-                return returnStage;
+                TowerDefense.BaseLogger.Write($"Could not find stage file \"{fileName}.stg\" in the stages folder, with the path {path}.", Internals.Logger.LogType.Error);
+                return new Stage("CouldNotLocateError");
             }
 
             using (var reader = new BinaryReader(File.Open(path, FileMode.Open, FileAccess.Read))) {
@@ -77,12 +80,12 @@ namespace TDGame.GameContent
                     byte[] header = reader.ReadBytes(5);
                     if (!header.SequenceEqual(fileHeader)) {
                         TowerDefense.BaseLogger.Write($"File \"{fileName}.stg\" is not a valid stage file (header invalid)", Internals.Logger.LogType.Error);
-                        return returnStage;
+                        return new Stage("InvalidHeaderError");
                     }
                     int stageVersion = reader.ReadInt32();
                     if (stageVersion != SavingSystemVersion) {
                         TowerDefense.BaseLogger.Write($"File \"{fileName}.stg\" was saved using an older version of the file saving system. Unable to load.", Internals.Logger.LogType.Error); //eventually implement conversion of old files to current version
-                        return returnStage;
+                        return new Stage("OldSaveSystemError");
                     }
                     int tileAmount = reader.ReadInt32();
                     for (int i = 0; i < tileAmount; i++) {
@@ -94,7 +97,8 @@ namespace TDGame.GameContent
                     }
                 }
                 catch (Exception e) {
-                    TowerDefense.BaseLogger.Write($"An error occurred while loading the stage file \"{fileName}.stg\": {e}", Internals.Logger.LogType.Error);
+                    TowerDefense.BaseLogger.Write($"An error occurred while loading the stage file \"{fileName}.stg\":\n{e}", Internals.Logger.LogType.Error);
+                    return new Stage("LoadError");
                 }
             }
             TowerDefense.BaseLogger.Write($"Loaded stage file \"{fileName}.stg\" into current.", Internals.Logger.LogType.Info);

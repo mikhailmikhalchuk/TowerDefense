@@ -26,8 +26,8 @@ namespace TDGame.GameContent
         public int X { get; }
         public int Y { get; }
 
-        public int WorldX { get; }
-        public int WorldY { get; }
+        public int WorldX => X * 32;
+        public int WorldY => Y * 32;
 
         public Texture2D Texture { get; private set; } = Resources.GetResourceBJ<Texture2D>("Assets/BrownTile");
 
@@ -62,8 +62,6 @@ namespace TDGame.GameContent
         internal Tile(int x, int y, bool elevated = false, int type = TileID.None) {
             X = x;
             Y = y;
-            WorldX = x * 32;
-            WorldY = y * 32;
             Elevated = elevated;
             this.type = type;
             switch (type) {
@@ -72,6 +70,9 @@ namespace TDGame.GameContent
                     break;
                 case TileID.Wall:
                     Texture = Resources.GetResourceBJ<Texture2D>("Assets/LightGrayTile");
+                    break;
+                case TileID.Exit:
+                    Texture = Resources.GetResourceBJ<Texture2D>("Assets/BrownTile");
                     break;
             }
             Tiles[X, Y] = this;
@@ -88,6 +89,9 @@ namespace TDGame.GameContent
                     break;
                 case TileID.Wall:
                     Texture = Resources.GetResourceBJ<Texture2D>("Assets/LightGrayTile");
+                    break;
+                case TileID.Exit:
+                    Texture = Resources.GetResourceBJ<Texture2D>("Assets/BrownTile");
                     break;
             }
         }
@@ -138,5 +142,9 @@ namespace TDGame.GameContent
         public const int Path = 1;
 
         public const int Wall = 2;
+
+        public const int Entrance = 3;
+
+        public const int Exit = 4;
     }
 }
