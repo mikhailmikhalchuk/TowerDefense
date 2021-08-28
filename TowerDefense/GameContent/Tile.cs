@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using TDGame.Internals.Loaders;
+using TDGame.Internals.Common;
 
 namespace TDGame.GameContent
 {
@@ -58,7 +59,7 @@ namespace TDGame.GameContent
 
         public static event MouseEvent OnMouseLeave;
 
-        internal Tile(int x, int y, bool elevated = false, int type = 0) {
+        internal Tile(int x, int y, bool elevated = false, int type = TileID.None) {
             X = x;
             Y = y;
             WorldX = x * 32;
@@ -66,10 +67,10 @@ namespace TDGame.GameContent
             Elevated = elevated;
             this.type = type;
             switch (type) {
-                case 1:
+                case TileID.Path:
                     Texture = Resources.GetResourceBJ<Texture2D>("Assets/DarkGrayTile");
                     break;
-                case 2:
+                case TileID.Wall:
                     Texture = Resources.GetResourceBJ<Texture2D>("Assets/LightGrayTile");
                     break;
             }
@@ -82,14 +83,22 @@ namespace TDGame.GameContent
 
         public void RedrawTile() {
             switch (type) {
-                case 1:
+                case TileID.Path:
                     Texture = Resources.GetResourceBJ<Texture2D>("Assets/DarkGrayTile");
                     break;
-                case 2:
+                case TileID.Wall:
                     Texture = Resources.GetResourceBJ<Texture2D>("Assets/LightGrayTile");
                     break;
             }
         }
+
+        public Tile GetTileAbove() => Tiles.IndexInRange(X, Y - 1) ? Tiles[X, Y - 1] : Tiles[0, 0];
+
+        public Tile GetTileBelow() => Tiles.IndexInRange(X, Y + 1) ? Tiles[X, Y + 1] : Tiles[0, 0];
+
+        public Tile GetTileRight() => Tiles.IndexInRange(X + 1, Y) ? Tiles[X + 1, Y] : Tiles[0, 0];
+
+        public Tile GetTileLeft() => Tiles.IndexInRange(X - 1, Y) ? Tiles[X - 1, Y] : Tiles[0, 0];
 
         internal void Draw() {
             TowerDefense.spriteBatch.Draw(Texture, CollisionBox, null, Color.White, 0f, Vector2.Zero, default, 0f);
@@ -118,5 +127,16 @@ namespace TDGame.GameContent
         public void MouseLeave() {
             OnMouseLeave?.Invoke(this);
         }
+    }
+
+    public static class TileID
+    {
+        public const int Invalid = -1;
+
+        public const int None = 0;
+
+        public const int Path = 1;
+
+        public const int Wall = 2;
     }
 }

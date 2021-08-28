@@ -1,6 +1,7 @@
 ﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 using TDGame.GameContent;
+using System.Collections.Generic;
 
 namespace TDGame.Internals.Common
 {
@@ -21,5 +22,11 @@ namespace TDGame.Internals.Common
         public static bool MouseOnScreenProtected => MousePosition.X > 16 && MousePosition.X < WindowWidth - 16 && MousePosition.Y > 16 && MousePosition.Y < WindowHeight - 16;
 
         public static Point ToPoint(this Vector2 vector) => new((int)vector.X, (int)vector.Y);
+
+        public static bool IndexInRange<T>(this T[] t, int index) => index < t.Length && index > 0;
+
+        public static bool IndexInRange<T>(this List<T> t, int index) => index < t.Count && index > 0;
+
+        public static bool IndexInRange<T>(this T[,] t, int index1, int index2) => index1 > 0 && index2 > 0 && index1 < t.Length && index2 < t.Length;
     }
 }

@@ -7,6 +7,7 @@ using System.Windows.Forms;
 using System.IO;
 using System.Collections.Generic;
 using TDGame.Internals.Common.GameInput;
+using TDGame.GameContent;
 
 namespace TDGame.GameContent.UI
 {
@@ -20,6 +21,10 @@ namespace TDGame.GameContent.UI
 
         private static Keybind LoadKey = new("Load Stage", Microsoft.Xna.Framework.Input.Keys.I);
 
+        private static Keybind HideKey = new("Hide Menus", Microsoft.Xna.Framework.Input.Keys.H);
+
+        private static int removeTime;
+
         public struct UIElements
         {
             public static UIPanel MenuTilesContainer;
@@ -29,6 +34,8 @@ namespace TDGame.GameContent.UI
             public static UIPanel SelectedBlockTextContainer;
             public static UITextButton SaveKeybindText;
             public static UITextButton LoadKeybindText;
+            public static UITextButton HideUIText;
+            public static UIText StageLoaderStatus;
         }
 
         internal static void Initialize() {
@@ -68,6 +75,15 @@ namespace TDGame.GameContent.UI
                 InteractionBoxRelative = new(0.6f, 0.92f, 0.18f, 0.07f),
                 BackgroundColor = Color.Black
             };
+            UIElements.HideUIText = new("H - Hide Menus", TowerDefense.Fonts.DefaultFont, Color.White)
+            {
+                InteractionBoxRelative = new(0.8f, 0.03f, 0.18f, 0.07f),
+                BackgroundColor = Color.Black
+            };
+            UIElements.StageLoaderStatus = new("", TowerDefense.Fonts.DefaultFont, Color.Red)
+            {
+                InteractionBoxRelative = new(0.03f, 0.03f, 0.1f, 0.1f)
+            };
             UIElements.PathBlock.OnClick += BlockOnClick;
             UIElements.PathBlock.OnMouseOver += BlockOnOver;
             UIElements.PathBlock.OnMouseLeave += BlockOnLeave;
@@ -75,15 +91,33 @@ namespace TDGame.GameContent.UI
             UIElements.WallBlock.OnMouseOver += BlockOnOver;
             UIElements.WallBlock.OnMouseLeave += BlockOnLeave;
             Tile.OnClick += Tile_OnClick;
+            Tile.OnRightClick += Tile_OnRightClick;
             UIElements.SaveKeybindText.OnClick += SaveKeybindText_OnClick;
             UIElements.LoadKeybindText.OnClick += LoadKeybindText_OnClick;
-            List<UIElement> toAppend = new() { UIElements.MenuTilesContainer, UIElements.PathBlock, UIElements.WallBlock, UIElements.SelectedBlockTextContainer, UIElements.SaveKeybindText, UIElements.LoadKeybindText, UIElements.SelectedBlockText };
+            UIElements.HideUIText.OnClick += HideUIText_OnClick;
+            List<UIElement> toAppend = new() { UIElements.MenuTilesContainer, UIElements.PathBlock, UIElements.WallBlock, UIElements.SelectedBlockTextContainer, UIElements.SaveKeybindText, UIElements.LoadKeybindText, UIElements.HideUIText, UIElements.SelectedBlockText };
             foreach (var element in toAppend) {
                 MenuParent.AppendElement(element);
             }
-            MenuParent.Visible = true; //trolling
             SaveKey.KeybindPressAction = s => SaveKeybindText_OnClick(UIElements.SaveKeybindText);
             LoadKey.KeybindPressAction = l => LoadKeybindText_OnClick(UIElements.LoadKeybindText);
+            HideKey.KeybindPressAction = h => HideUIText_OnClick(UIElements.LoadKeybindText);
+        }
+
+        private static void Tile_OnRightClick(Tile tile) {
+            tile.GetTileAbove();
+        }
+
+        private static void HideUIText_OnClick(UIElement affectedElement) {
+            if (affectedElement != UIElements.LoadKeybindText && !MenuParent.Visible)
+                return;
+            MenuParent.Visible = !MenuParent.Visible;
+            if (MenuParent.Visible)
+                return;
+
+            UIElements.StageLoaderStatus.Text = $"Press \"H\" to show menus";
+            UIElements.StageLoaderStatus.Color = Color.LightGreen;
+            removeTime = 150;
         }
 
         private static void LoadKeybindText_OnClick(UIElement affectedElement) {
@@ -98,7 +132,17 @@ namespace TDGame.GameContent.UI
             if (fileDialog.ShowDialog() == DialogResult.OK) {
                 Stage test = Stage.LoadStage(fileDialog.SafeFileName.Remove(fileDialog.SafeFileName.Length - 4));
 
+                if (test.TileMap.Count <= 0) {
+                    UIElements.StageLoaderStatus.Text = $"Failed to load {fileDialog.SafeFileName} (check logs)";
+                    UIElements.StageLoaderStatus.Color = Color.Red;
+                    removeTime = 150;
+                }
+
                 Stage.SetStage(test);
+
+                UIElements.StageLoaderStatus.Text = $"Loaded {fileDialog.SafeFileName}";
+                UIElements.StageLoaderStatus.Color = Color.LightGreen;
+                removeTime = 150;
             }
         }
 
@@ -119,15 +163,24 @@ namespace TDGame.GameContent.UI
                     Stage.currentLoadedStage.TileMap.Add(tl);
                 }
                 Stage.SaveStage(Stage.currentLoadedStage);
+
+                UIElements.StageLoaderStatus.Text = $"Saved {fileDialog.FileName.Remove(0, TowerDefense.ExePath.Length + 8)}";
+                UIElements.StageLoaderStatus.Color = Color.LightGreen;
+                removeTime = 150;
             }
         }
 
         internal static void Update() {
+            if (removeTime > 0)
+                removeTime--;
 
+            if (removeTime <= 0 && UIElements.StageLoaderStatus.Text != "") {
+                UIElements.StageLoaderStatus.Text = "";
+            }
         }
 
         private static void BlockOnLeave(UIElement affectedElement) {
-            if (selectedType <= 0) {
+            if (selectedType == TileID.None) {
                 UIElements.SelectedBlockText.Visible = false;
             }
         }
@@ -145,24 +198,26 @@ namespace TDGame.GameContent.UI
         }
 
         private static void Tile_OnClick(Tile tile) {
-            if (selectedType > 0) {
+            if (selectedType > TileID.None) {
                 tile.type = selectedType;
                 tile.RedrawTile();
             }
         }
 
         private static void BlockOnClick(UIElement affectedElement) {
+            if (!MenuParent.Visible)
+                return;
             int GetSelectedType() {
                 if (affectedElement == UIElements.PathBlock) {
-                    return 1;
+                    return TileID.Path;
                 }
                 else if (affectedElement == UIElements.WallBlock) {
-                    return 2;
+                    return TileID.Wall;
                 }
-                return 0;
+                return TileID.None;
             }
             if (GetSelectedType() == selectedType) {
-                selectedType = 0;
+                selectedType = TileID.None;
             }
             else {
                 selectedType = GetSelectedType();
