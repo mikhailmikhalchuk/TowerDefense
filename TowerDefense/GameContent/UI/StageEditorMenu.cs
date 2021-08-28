@@ -114,7 +114,7 @@ namespace TDGame.GameContent.UI
         }
 
         private static void Tile_OnRightClick(Tile tile) {
-            new Enemy(new Vector2(tile.WorldX, tile.WorldY), 3f);
+            new Enemy("Test", new Vector2(tile.WorldX, tile.WorldY), 3f);
         }
 
         private static void HideUIText_OnClick(UIElement affectedElement) {

@@ -96,6 +96,8 @@ namespace TDGame.GameContent
             }
         }
 
+        public int Distance(Tile tile) => (int)Vector2.Distance(new(WorldX, WorldY), new(tile.WorldX, tile.WorldY));
+
         public Tile GetTileAbove() => Tiles.IndexInRange(X, Y - 1) ? Tiles[X, Y - 1] : Tiles[0, 0];
 
         public Tile GetTileBelow() => Tiles.IndexInRange(X, Y + 1) ? Tiles[X, Y + 1] : Tiles[0, 0];

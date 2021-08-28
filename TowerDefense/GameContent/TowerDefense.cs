@@ -91,7 +91,7 @@ namespace TDGame.GameContent
         {
             Input.HandleInput();
 
-            foreach (var enemy in Enemy.TotalEnemies)
+            foreach (var enemy in Enemy.TotalEnemies.ToList())
                 enemy?.Update();
             
             UI.StageEditorMenu.Update();
@@ -107,13 +107,13 @@ namespace TDGame.GameContent
             foreach (var tile in Tile.Tiles)
                 tile?.Draw();
 
-            foreach (var tower in Tower.TotalTowers)
+            foreach (var tower in Tower.TotalTowers.ToList())
                 tower?.Draw();
 
-            foreach (var enemy in Enemy.TotalEnemies)
+            foreach (var enemy in Enemy.TotalEnemies.ToList())
                 enemy?.Draw();
 
-            foreach (var element in UIElement.TotalElements) {
+            foreach (var element in UIElement.TotalElements.ToList()) {
                 if (element.Parent == null)
                     element?.Draw();
             }
